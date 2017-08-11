@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  webserver:
+    image: coreos/example:2.0.0
+    labels:
+      - "traefik.backend=webserver"
+      - "traefik.frontend.rule=Host:webserver.docker.localhost"
+    networks:
+      - docker-net
+  traefik:
+    image: traefik:v1.3.5
+    ports:
+      - "8000:80"
+      - "8080:8080"
+    volumes:
+      - ./traefik.toml:/traefik.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - docker-net
+  haproxy:
+    image: haproxy:1.7.8
+    ports:
+      - "8001:80"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - docker-net
+
+networks:
+  docker-net:
